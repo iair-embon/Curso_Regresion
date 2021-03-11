@@ -1,5 +1,8 @@
 # lee el .dta de chicos con iq. Del capitulo 3
 
+library(tidyverse)
+library(haven)
+
 filepath = "C:/Users/marcosembon/Google Drive/Investigacion iacho/maestría UBA/maestría pablo/papers/por leer/Regresion/Andrew Gelman/ARM_Data/child.iq/kidiq.dta"
 
 ffc.stata <- read_dta(file = filepath)
