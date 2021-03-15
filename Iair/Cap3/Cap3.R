@@ -1,3 +1,7 @@
+#######################
+#### cod. capitulo ####
+#######################
+
 # lee el .dta de chicos con iq. Del capitulo 3
 
 library(tidyverse)
@@ -44,3 +48,41 @@ for (i in 1:10){
 curve (coef(fit.2)[1] + coef(fit.2)[2]*x, add=TRUE, col="black")
 
 
+####################
+#### Ejercicios ####
+####################
+
+## 1)
+
+## filepath
+root <- rprojroot::is_rstudio_project
+basename(getwd())
+a <- read.table(root$find_file("Iair/exercise2.1.dat"), header = T)
+
+# a
+fit.ej1 <- lm (a$y ~ a$x1 + a$x2)
+# display(fit.ej1) no me encuentra display, tengo que instalar un paquete?
+summary(fit.ej1)
+
+# b sale mal el plot cuando intento plotearlos juntos al x1 y x2
+colors <- ifelse (a$x1==1, "black", "gray")
+plot (a$x2, a$y, xlab="x2", ylab="y",
+      col=colors, pch=20)
+curve (cbind (1, 1, x) %*% coef(fit.3), add=TRUE, col="black")
+curve (cbind (1, 0, x) %*% coef(fit.3), add=TRUE, col="gray")
+
+
+# b intento 2, aca puedo plotear x1 o x2 por vez
+fit.ej1b <- lm (a$y ~ a$x2)
+plot (a$x2, a$y, xlab="X", ylab="Y")
+curve (coef(fit.ej1b)[1] + coef(fit.ej1b)[2]*x, add=TRUE)
+
+
+# c, no seria normal, no?
+res <- resid(fit.ej1)
+plot(fitted(fit.ej1), res)
+abline(0,0)
+
+# d no entendí este. 
+x.new <- data.frame (a$x1=5, a$x2=12)
+predict (fit.ej1, x.new, interval="prediction", level=0.95)
