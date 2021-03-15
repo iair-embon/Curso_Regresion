@@ -19,26 +19,21 @@ summary(regresion1)
 
 # Display the estimated model graphically as in Figure 3.2.
 
-plot(data$x1, data$y, xlab = 'x1 (grey) & x2 (black)', ylab = 'y', col = 'grey', xlim = c(0, 20))
-points(data$x2, data$y, col = 'black')
+plot(data_40$x1, data_40$y, xlab = 'x1 (grey) & x2 (black)', ylab = 'y', col = 'grey', xlim = c(0, 20))
+points(data_40$x2, data_40$y, col = 'black')
 
 
 # intento de plotear por separado...
 
-fit.ej1a <- lm(data$y ~ data$x2)
-plot(data$x2, data$y, ylim = c(0,25))
+fit.ej1a <- lm(data_40$y ~ data_40$x2)
+plot(data_40$x2, data_40$y, ylim = c(0, 25))
 curve(coef(fit.ej1a)[1] + coef(fit.ej1a)[2]*x, add = TRUE)
 
-fit.ej1b <- lm(data$y ~ data$x1)
-plot(data$x1, data$y)
+fit.ej1b <- lm(data_40$y ~ data_40$x1)
+plot(data_40$x1, data_40$y, ylim = c(0, 25))
 curve(coef(fit.ej1b)[1] + coef(fit.ej1b)[2]*x, add = TRUE)
 
 # Make a residual plot for this model. Do the assumptions appear to be met?
 
 plot(regresion1$residuals)
 
-# Make predictions for the remaining 20 data points in the file.
-
-
-
-# How confident do you feel about these predictions?
