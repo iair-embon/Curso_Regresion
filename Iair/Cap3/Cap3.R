@@ -86,3 +86,7 @@ abline(0,0)
 # d no entendí este. 
 x.new <- data.frame (a$x1=5, a$x2=12)
 predict (fit.ej1, x.new, interval="prediction", level=0.95)
+
+## 2)
+
+# earning.score = 29947.2 + height.score x 0.8
