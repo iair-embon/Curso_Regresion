@@ -84,9 +84,41 @@ plot(fitted(fit.ej1), res)
 abline(0,0)
 
 # d no entendí este. 
-x.new <- data.frame (a$x1=5, a$x2=12)
-predict (fit.ej1, x.new, interval="prediction", level=0.95)
+x.new <- a[41:60, 2:3]
+predict.lm(fit.ej1, x.new, interval="prediction", level=0.95)
 
 ## 2)
-
+# falta el logaritmo. no lo tuve en cuenta. 
 # earning.score = 29947.2 + height.score x 0.8
+
+## 3) 
+
+# a
+
+# creo variables
+var1 <- rnorm(1000,0,1)
+var2 <- rnorm(1000,0,1)
+
+# corro la regresion
+fit.ej3 <- lm (var2 ~ var1)
+plot (var1, var2, xlab="X", ylab="Y")
+curve (coef(fit.ej3)[1] + coef(fit.ej3)[2]*x, add=TRUE)
+
+summary(fit.ej3)
+# no es significativa.
+
+# b
+
+z.scores <- rep (NA, 100)
+for (k in 1:100) {
+  var1 <- rnorm (1000,0,1)
+  var2 <- rnorm (1000,0,1)
+  fit <- lm (var2 ~ var1)
+  z.scores[k] <- coef(fit)[2]/se.coef(fit)[2]
+}
+
+# veo cuales son significativos
+significativos <- z.scores[z.scores > 1.96 | z.scores < -1.96]
+
+# solo 7
+
