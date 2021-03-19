@@ -1,6 +1,8 @@
 ########### CAP 3 EXERCISES ###########
 
-# Exercise 1
+################
+## Exercise 1 ##
+################
 
 # The folder pyth contains outcome y and inputs x1,x2 for 40 data points, with a further 20 points with the
 #inputs but no observed outcome. Save the file to your working directory and read it into R using the
@@ -37,3 +39,56 @@ curve(coef(fit.ej1b)[1] + coef(fit.ej1b)[2]*x, add = TRUE)
 
 plot(regresion1$residuals)
 
+# Make predictions for the remaining 20 data points in the file.
+x.new    <- data.frame(x1 = data$x1[seq(41,60,1)], x2 = data$x2[seq(41,60,1)])
+predict.lm(object = regresion1, newdata = x.new, interval = 'prediction', level = 0.95) 
+
+# How confident do you feel about these predictions? 95% ?
+
+################
+## Exercise 2 ##
+################
+
+# me base en https://github.com/IamGianluca/arm para los logaritmos
+
+# encontrar la intercepcion
+alpha <- log(30000) - (0.008/0.01)*log(66)
+
+# ecuacion: log.earnings = alpha + (0.008/0.01) * log(66)
+
+# residual standar deviation
+sd <- 0.1 * .50 / .95
+
+# R2 of the regression
+sd.population = 0.05
+R2 <- 1 - (sd^2 / sd.population^2) # puede dar negativo??
+
+################
+## Exercise 3 ##
+################
+
+# create independent variables
+var1 <- rnorm(1000,0,1)
+var2 <- rnorm(1000,0,1)
+
+# run a regression on each other
+reg1 <- lm(var1 ~ var2)
+summary(reg1) # slope coefficient is not significant
+plot(var2, var1)
+
+reg2 <- lm(var2 ~ var1)
+summary(reg2) # slope coefficient is not significant
+plot(var1, var2)
+
+# now run a simulation repeating this process 100 times, saving the z-score for each one. How many
+# of them are significant (i.e. > 2 SE)?
+
+z.scores <- rep (NA, 100) 
+for (k in 1:100){ 
+  var1 <- rnorm (1000,0,1) 
+  var2 <- rnorm (1000,0,1) 
+  fit <- lm (var2 ~ var1) 
+  z.scores[k] <- coef(fit)[2]/se.coef(fit)[2] 
+}
+
+length(which(z.scores > 2)) # no tengo la funcion se.coef pero intuyo que asi deberia andar
