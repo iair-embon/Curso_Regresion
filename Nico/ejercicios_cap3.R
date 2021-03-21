@@ -92,3 +92,102 @@ for (k in 1:100){
 }
 
 length(which(z.scores > 2)) # no tengo la funcion se.coef pero intuyo que asi deberia andar
+
+################
+## Exercise 4 ##
+################
+
+library ("foreign") 
+iq.data <- read.dta ("child.iq.dta")
+
+# fit a regression of child test scores on mother's age. Display data and fitted model
+# check assumptions and interpret slope coefficient
+
+fit.iq1 <- lm(iq.data$ppvt ~ iq.data$momage)
+summary(fit.iq1)
+plot(iq.data$momage, iq.data$ppvt)
+curve(coef(fit.iq1)[1] + coef(fit.iq1)[2]*x, add = T)
+
+# alfa indica que una mamá que da a luz a los 0 años (escenario imposible) predice un 
+# puntaje en el test de iq de 67.7827; beta indica que cada año que se suma en la edad
+# de la madre a la hora de dar a luz predice un aumento promedio de 0.8403 en el test de iq del hijo.
+# Esta sería la interpretación predictiva del cap. 3, verdad?
+
+# When do you recommend mothers should give birth? mientras más grandes, mejor
+
+# What are you assuming in making these recommendations? que la inclinación de la curva del 
+# modelo no va a cambiar a valores más altos de x.
+
+# repeat the regression but incluiding mothers education
+
+fit.iq2 <- lm(iq.data$ppvt ~ iq.data$momage + iq.data$educ_cat)
+summary(fit.iq2)
+plot(iq.data$momage, iq.data$ppvt, xlab = 'Mom age', ylab = 'Child test score')
+colors <- c('grey', 'yellow', 'orange', 'red')
+for(i in 1:4){
+  curve(cbind(1, x, i) %*% coef(fit.iq2), add=TRUE, col=colors[i])
+}
+
+# interpret both coefficients: b1 predice que, manteniendo la categoría de educación de la 
+# madre constante en su valor más bajo (1), un aumento de un año en la edad en la cual la 
+# madre da a luz predice un aumento promedio de 0.34 en el rendimento del test. 
+# b2 predice que, manteniendo constante la edad de la madre en su valor más bajo, un aumento 
+# en la categoría de educación de la madre predice una suba promedio de 4.7113943 en el resultado
+# del test de iq del hijo.
+
+# have your conclussions about the time of birth changed? sí, ahora la edad parece tener un 
+# efecto mínimo. Importa más la educación materna.
+
+# create an indicator of whether moms have finished high school or not.
+# asumo que 3 y 4 indican que finalizó el colegio y 1 y 2 indican que no
+
+iq.data$momhs <- ifelse(iq.data$educ_cat <= 2, 0, 1)
+
+# consider interactions between HS completion and mom age.
+fit.iq3 <- lm(iq.data$ppvt ~ iq.data$momage * iq.data$momhs)
+summary(fit.iq3)
+
+# create a plot that shows the separate regression lines for each HS completion status group
+
+plot(iq.data$momage, iq.data$ppvt) 
+curve(cbind(1, 1, x, 1 * x) %*% coef(fit.iq3), add=TRUE)  # completed high school
+curve(cbind(1, 0, x, 0 * x) %*% coef(fit.iq3), add=TRUE)  # didn't complete high school
+# no puedo añadir las curvas, dan valores negativos 
+
+
+#################
+## EJERCICIO 5 ##
+#################
+
+data <- read.csv('ProfEvaltnsBeautyPublic.csv')
+
+fit.beauty <- lm(data$courseevaluation ~ data$btystdave + data$female)
+summary(fit.beauty)
+
+plot(data$btystdave, data$courseevaluation) # no estoy seguro que este plot esté bien
+curve(cbind(1, x, 1 * x) %*% coef(fit.beauty), col = 'blue', add=TRUE)  # female
+curve(cbind(1, x, 0 * x) %*% coef(fit.beauty), col = 'red', add=TRUE)  # not-female
+
+plot(data$btystdave, data$courseevaluation)
+curve(coef(fit.beauty)[1] + coef(fit.beauty)[2]*x, add = T)
+
+plot(data$female, data$courseevaluation)
+curve(coef(fit.beauty)[1] + coef(fit.beauty)[3]*x, add = T)
+
+plot(fit.beauty$fitted.values, fit.beauty$residuals)
+abline(a = 0, b = 0)
+
+
+# considering other models...
+
+m2.beauty <- lm(data$courseevaluation ~ data$btystdave + data$female * data$age)
+summary(m2.beauty)
+
+par(mfrow = c(1,3))
+plot(data$btystdave, data$courseevaluation)
+curve(coef(m2.beauty)[1] + coef(m2.beauty)[2]*x, add = T)
+plot(data$female, data$courseevaluation)
+curve(coef(m2.beauty)[1] + coef(m2.beauty)[3]*x, add = T)
+plot(data$age, data$courseevaluation)
+curve(coef(m2.beauty)[1] + coef(m2.beauty)[4]*x, add = T)
+
