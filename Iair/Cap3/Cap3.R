@@ -221,4 +221,50 @@ for (i in 1:10){
 curve (coef(fit.ej4d)[1] + coef(fit.ej4d)[2]*x, add=TRUE, col="black")
 
 
-# 5 
+## 5)
+
+# Read the data into R, including the variable names (headers)
+library(haven)
+
+root <- rprojroot::is_rstudio_project
+basename(getwd())
+
+filepath = root$find_file("Iair/ProfEvaltnsBeautyPublic.csv")
+
+beauty.data <- read.table (file = filepath, header=T, sep=",")
+
+# Attach the data so they are accessible using their variable names
+library(R2WinBUGS)
+attach.all (beauty.data) 
+
+# a
+
+# corro regresion
+fit.ej5 <- lm (courseevaluation ~ btystdave) # a que se refiere con 
+                                             #"controlling for various other inputs"
+display(fit.ej5)
+
+# ploteo
+plot (btystdave, courseevaluation, xlab="beauty", ylab="course evaluations")
+curve (coef(fit.ej5)[1] + coef(fit.ej5)[2]*x, add=TRUE)
+
+# segundo plot, los valores residuales vs los fitted
+res <- resid(fit.ej5)
+plot(fitted(fit.ej5), res)
+abline(0,0)
+hist(res) # es normal pareciera
+
+# b
+
+# planteo un modelo con interaccion
+
+fit.ej5b <- lm (courseevaluation ~ tenured + btystdave  
+                + tenured:btystdave)
+display(fit.ej5b)
+
+# plot 
+colors <- ifelse (tenured==1, "black", "gray")
+plot (btystdave, courseevaluation, xlab="beauty", ylab="course evaluations",
+      col=colors, pch=20)
+curve (cbind (1, 1, x, 1*x) %*% coef(fit.ej5b), add=TRUE, col="black")
+curve (cbind (1, 0, x, 0*x) %*% coef(fit.ej5b), add=TRUE, col="gray")
