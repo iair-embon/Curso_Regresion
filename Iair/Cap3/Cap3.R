@@ -7,7 +7,11 @@
 library(tidyverse)
 library(haven)
 
-filepath = "C:/Users/marcosembon/Google Drive/Investigacion iacho/maestría UBA/maestría pablo/papers/por leer/Regresion/Andrew Gelman/ARM_Data/child.iq/kidiq.dta"
+root <- rprojroot::is_rstudio_project
+basename(getwd())
+#read each line and convert
+
+filepath = root$find_file("Iair/kidiq.dta")
 
 ffc.stata <- read_dta(file = filepath)
 
@@ -61,7 +65,7 @@ a <- read.table(root$find_file("Iair/exercise2.1.dat"), header = T)
 
 # a
 fit.ej1 <- lm (a$y ~ a$x1 + a$x2)
-# display(fit.ej1) no me encuentra display, tengo que instalar un paquete?
+display(fit.ej1) 
 summary(fit.ej1)
 
 # b sale mal el plot cuando intento plotearlos juntos al x1 y x2
@@ -122,3 +126,99 @@ significativos <- z.scores[z.scores > 1.96 | z.scores < -1.96]
 
 # solo 7
 
+## 4) 
+
+# a
+
+library(haven)
+
+root <- rprojroot::is_rstudio_project
+basename(getwd())
+
+filepath = root$find_file("Iair/child.iq.dta")
+
+library ("foreign")
+iq.data <- read.dta (file = filepath) 
+
+# creo variables
+var1 <- iq.data$ppvt
+var2 <- iq.data$momage
+
+# corro la regresion
+fit.ej4 <- lm (var2 ~ var1)
+plot (var1, var2, xlab="X", ylab="Y")
+curve (coef(fit.ej4)[1] + coef(fit.ej4)[2]*x, add=TRUE)
+
+summary(fit.ej4)
+
+# pareciera que a mayor edad mayor puntaje de test.
+
+# como chequeo linealidad?
+
+# como chequeo que las varianzas de los errores sean iguales? kolmovorov smirnov? 
+
+# chequeo normalidad
+res <- resid(fit.ej4)
+plot(fitted(fit.ej4), res)
+abline(0,0)
+hist(res) # es normal pareciera
+
+# b
+# corro la regresion
+library(arm)
+
+fit.ej4b <- lm (iq.data$ppvt ~ iq.data$momage + iq.data$educ_cat)
+summary(fit.ej4b)
+display(fit.ej4b)
+
+# c
+# Asumo que las madres que fueron al hs son 3 y 4, y las que no fueron son 1 y 2
+# ya que no sé significan las categorías.
+
+hsMom <- rep(NaN, length(iq.data$educ_cat))
+for (i in 1:length(hsMom)) {
+  if (iq.data$educ_cat[i] == 1 | iq.data$educ_cat[i] == 2){
+    hsMom[i] <- 0
+  } else {
+    hsMom[i] <- 1
+  }
+}
+# meto la variable nueva en el df
+iq.data$hsMom <- hsMom
+
+# realizo la regresion con interaccion
+
+fit.ej4c <- lm (iq.data$ppvt ~ iq.data$hsMom + iq.data$momage  
+                + iq.data$hsMom:iq.data$momage)
+
+display(fit.ej4c)
+summary(fit.ej4c)
+
+# plot # este plot me sale mal, o pienso que
+colors <- ifelse (iq.data$hsMom==1, "black", "gray")
+plot (iq.data$momage, iq.data$ppvt, xlab="Mother Age", ylab="Child test score",
+      col=colors, pch=20)
+curve (cbind (1, 1, x, 1*x) %*% coef(fit.4), add=TRUE, col="black")
+curve (cbind (1, 0, x, 0*x) %*% coef(fit.4), add=TRUE, col="gray")
+
+# d # fracase en este 
+library(tidyverse)
+
+# tomo los primeros 200 renglones
+iq.data.first200 <- iq.data %>% slice(1:200)
+
+# corro la regresion
+fit.ej4d <- lm (iq.data.first200$ppvt ~ iq.data.first200$momage 
+                + iq.data.first200$educ_cat)
+display(fit.ej4d)
+
+fit.ej4d.sim <- sim(fit.ej4d, n.sims= 200)
+
+plot (iq.data.first200$momage, iq.data.first200$ppvt, xlab="Mother age", ylab="Child test score")
+for (i in 1:10){
+  curve (fit.ej4d.sim$beta[i,1] + fit.ej4d.sim$beta[i,2]*x, add=TRUE,col="gray")
+}
+curve (coef(fit.ej4d)[1] + coef(fit.ej4d)[2]*x, add=TRUE, col="black")
+
+
+# 5 
