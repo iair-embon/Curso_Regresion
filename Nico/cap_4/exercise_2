@@ -1,0 +1,45 @@
+library(tidyverse)
+library(haven)
+
+h.data <- read_dta('heights.dta')
+
+# A - first check dataset
+
+# exclude NAs
+h.data <- h.data[complete.cases(h.data),]
+
+# re-escale earnings
+h.data$earn <- h.data$earn / 1000
+
+# B - fit linear model predicting earnings from height. 
+fit1 <- lm(h.data$earn ~ h.data$height)
+summary(fit1)
+
+plot(h.data$height, h.data$earn)
+abline(fit1)
+
+# what transformation should you perform in order to interpret the intercept
+# from this model as average earnings for people with average height?
+
+h.data$normalized_h <- (h.data$height - mean(h.data$height)) / (2*sd(h.data$height)) 
+
+fit2 <- lm(h.data$earn ~ h.data$normalized_h)  # now coef is the average increase in earn/1000 when increasing 1 SD in x?
+summary(fit2)
+
+plot(h.data$normalized_h, h.data$earn, xlim = c(0, 2)) # xlim for centering graph axes
+abline(fit2)
+
+# C - Fit some regression models with the goal of predicting earnings from some combination of sex, height, and weight.
+# include interactions and perform transformations. Which model is the best? justify
+
+# transform sex into a binary variable 1 = male / 0 = female 
+# mean height in dataset is higher for sex = 1 than sex = 2 so I assume 1 is male and 2 is female
+h.data$male <- ifelse(h.data$sex == 1, 1, 0) 
+
+# there's no 'weight' in data, so I will do 2 models: one with interaction and one without
+fit3 <- lm(h.data$earn ~ h.data$height * h.data$male) # y = height + male + height*male
+summary(fit3)
+
+fit4 <- lm(h.data$earn ~ h.data$height + h.data$male) # y = height + male
+summary(fit4)
+
