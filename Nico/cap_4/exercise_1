@@ -1,0 +1,15 @@
+# consider the following regression:
+
+# log(weight) = - 3.5 + 2.0 log(height) + error
+
+# (errors have standard deviation 0.25)
+
+# A - Fill in the blanks: approximately 68% of the persons will have weights within a factor of
+# __ and __ of their predicted values from the regression.
+
+# 68 = 1 sd, so...
+-(exp(0.25)) # -1.28
+exp(0.25)    # 1.28
+
+# B - Draw the regression line and scatterplot of log(weight) versus log(height)that make sense and are 
+# consistent with the fitted model. Be sure to label the axes of your graph
