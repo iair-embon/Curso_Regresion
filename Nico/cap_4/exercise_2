@@ -9,7 +9,7 @@ h.data <- read_dta('heights.dta')
 h.data <- h.data[complete.cases(h.data),]
 
 # re-escale earnings
-h.data$earn <- h.data$earn / 1000
+h.data$earn <- h.data$earn / 1000  # this is suggested in the book, but I don't understand the improvement in interpretability
 
 # B - fit linear model predicting earnings from height. 
 fit1 <- lm(h.data$earn ~ h.data$height)
@@ -42,4 +42,16 @@ summary(fit3)
 
 fit4 <- lm(h.data$earn ~ h.data$height + h.data$male) # y = height + male
 summary(fit4)
+
+# D - Interpret all models coefficients
+# fit3 (interaction model): 
+# Intercept: it has no direct interpretation since is negative. Represents the predicted average earn for females with 0 height
+# height: a increase in one unit in height predicts an average increase in earn (/1000) of 0.36 
+# male: being male predicts a decrease of earnings in average -16.01 ??? if I plot it looks like the earn will increase
+# interaction...: ?
+
+# fit4:
+# intercept: it has no direct interpretation since is negative. Represents the predicted average earn for females with 0 height
+# height: a increase in one unit in height predicts an average increase in earn (/1000) of 0.55 (being female?)
+# male: being male predicts an average increase in earn of 11.25
 
