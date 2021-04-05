@@ -1,0 +1,64 @@
+library(tidyverse)
+library(haven)
+
+data <- read_dta('pollution.dta')
+
+# A - scatterplot mortality vs NO level. Fit a regression and evaluate a residual plot from the regression
+
+fit1 <- lm(data$mort ~ data$nox)
+summary(fit1)
+plot(data$nox, data$mort)
+abline(fit1)
+
+plot(fit1$residuals)
+abline(0, 0)
+hist(fit1$residuals) # los residuales parecen normalmente distribuidos
+
+# pruebo sin outliers
+no.out <- data[data$nox <= 50,]
+
+fit2 <- lm(no.out$mort ~ no.out$nox)
+summary(fit2)
+plot(no.out$nox, no.out$mort)
+abline(fit2)
+
+plot(fit2$residuals)
+abline(0, 0)
+hist(fit2$residuals) # los residuales parecen normalmente distribuidos
+
+# B - Find an appropiate transformation of data for linear regression. Fit a regression to the 
+# transformed data and evaluate the new residual plot
+
+data$log_mort <- log(data$mort)
+data$log_nox  <- log(data$nox)
+
+fit3 <- lm(data$log_mort ~ data$log_nox)
+summary(fit3)
+plot(data$log_nox, data$log_mort)
+abline(fit3)
+
+plot(fit3$residuals)
+abline(0,0)
+hist(fit3$residuals)
+
+## lo repito sin outliers
+no.out$log_mort <- log(no.out$mort)
+no.out$log_nox  <- log(no.out$nox)
+
+fit4 <- lm(no.out$log_mort ~ no.out$log_nox) # fit4 = best model
+summary(fit4)
+plot(no.out$log_nox, no.out$log_mort)
+abline(fit4)
+
+
+plot(fit4$residuals)
+abline(0,0)
+hist(fit4$residuals)
+
+# C - Interpret the slope coefficient from the model you chose in (b).
+# pag 64: 'log-log model' -->  'if the log transformation is applied to an input variable as well as the outcome, 
+# the coefficient can be interpreted as the expected proportional change in y per proportional change in x'
+
+# en este caso sería que un aumento de 1% en el nivel de NO causaría un aumento de 0.03273% en la mortalidad?
+
+# D - ...
