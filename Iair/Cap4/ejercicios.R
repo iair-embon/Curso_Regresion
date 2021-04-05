@@ -3,7 +3,7 @@
 ##########################
 
 ## 1) # en pag 62 tira la posta para este ejercicio
-# no entendi por que es negativo en la que tira ian y en
+# a
 #  -(exp(0.25)) = -1.28 and exp(0.25) = 1.28
 
 ## 2) log(weight) = −3.5+2.0 log(height) + error   # no me queda claro si hay que transformar la variable predictora o no a log scale
