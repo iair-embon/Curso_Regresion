@@ -145,8 +145,8 @@ var1 <- iq.data$ppvt
 var2 <- iq.data$momage
 
 # corro la regresion
-fit.ej4 <- lm (var2 ~ var1)
-plot (var1, var2, xlab="X", ylab="Y")
+fit.ej4 <- lm (var1 ~ var2)
+plot (var2, var1, xlab="X", ylab="Y")
 curve (coef(fit.ej4)[1] + coef(fit.ej4)[2]*x, add=TRUE)
 
 summary(fit.ej4)
@@ -155,7 +155,10 @@ summary(fit.ej4)
 
 # como chequeo linealidad?
 
-# como chequeo que las varianzas de los errores sean iguales? kolmovorov smirnov? 
+# como chequeo que las varianzas de los errores sean iguales? levene? 
+# codigo que uso ale: 
+# qplot(fit1$fitted.values, fit1$residuals) + geom_hline(yintercept = 0, color = 'blue')
+
 
 # chequeo normalidad
 res <- resid(fit.ej4)
@@ -177,7 +180,7 @@ display(fit.ej4b)
 
 hsMom <- rep(NaN, length(iq.data$educ_cat))
 for (i in 1:length(hsMom)) {
-  if (iq.data$educ_cat[i] == 1 | iq.data$educ_cat[i] == 2){
+  if (iq.data$educ_cat[i] == 1){
     hsMom[i] <- 0
   } else {
     hsMom[i] <- 1
@@ -201,7 +204,21 @@ plot (iq.data$momage, iq.data$ppvt, xlab="Mother Age", ylab="Child test score",
 curve (cbind (1, 1, x, 1*x) %*% coef(fit.4), add=TRUE, col="black")
 curve (cbind (1, 0, x, 0*x) %*% coef(fit.4), add=TRUE, col="gray")
 
-# d # fracase en este 
+
+
+# plan b del ploteo codigo de ale
+
+ggplot(data = iq.data, mapping = aes(x = iq.data$momage, y = iq.data$ppvt)) +
+  geom_point() +
+  geom_smooth(method = 'lm', se = FALSE) +
+  facet_wrap(~ iq.data$hsMom)
+
+# plot de nico
+plot(iq.data$momage, iq.data$ppvt) 
+curve(cbind(1, 1, x, 1 * x) %*% coef(fit.ej4c), add=TRUE)  # completed high school
+curve(cbind(1, 0, x, 0 * x) %*% coef(fit.ej4c), add=TRUE)
+
+# d # fracase en este REVISAR COMO LO HICIERON LOS DEMAS
 library(tidyverse)
 
 # tomo los primeros 200 renglones
