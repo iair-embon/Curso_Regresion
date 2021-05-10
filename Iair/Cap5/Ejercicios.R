@@ -117,37 +117,109 @@ print (mean (delta))
 df_total$discrimination_is_correct[df_total$discrimination_is_correct == TRUE] <- 1 
 df_total$discrimination_is_correct[df_total$discrimination_is_correct == FALSE] <- 0
 
+df_total.solo.FyM <- df_total[df_total$genero == "Masculino" |df_total$genero == "Femenino",]
+
 # hago una regresion logistica para saber que tanto se puede predecir si acerto o no
 # a partir de la confianza en general (no sujeto por sujeto)
 
-fit.4.0 <- glm (discrimination_is_correct ~ confidence_key, family=binomial(link="logit"), data = df_total)
+fit.4.0 <- glm (discrimination_is_correct ~ confidence_key, 
+                family=binomial(link="logit"), data = df_total.solo.FyM)
 display(fit.4.0)
 
-fit.4.0 <- glm (discrimination_is_correct ~ confidence_key + AQ + genero + AQ:genero, family=binomial(link="logit"), data = df_total)
-display(fit.4.0)
+fit.4.1 <- glm (discrimination_is_correct ~ confidence_key + AQ + genero +
+                  AQ:genero, family=binomial(link="logit"), data = df_total.solo.FyM)
+display(fit.4.1)
 
-fit.4.0
 
 # corro una regresion logistica por sujeto para obtener su coeficiente de confianza
 # la idea es despues correlacionarla con su nivel de metacog
-reg.coef.conf <- rep(NaN, length(unique(df_total$sujetos)))
-sujetos.existentes <- unique(df_total$sujetos)
+reg.coef.conf <- rep(NaN, length(unique(df_total.solo.FyM$sujetos)))
+sujetos.existentes <- unique(df_total.solo.FyM$sujetos)
 
-for (i in 1:length(unique(df_total$sujetos))) {
+for (i in 1:length(unique(df_total.solo.FyM$sujetos))) {
   f <- sujetos.existentes[i] 
-  df_total.subset <- df_total[df_total$sujetos==f,]
-  fit.4.0 <- glm (discrimination_is_correct ~ confidence_key, family=binomial(link="logit"), data = df_total.subset)
-  b <- coef (fit.4.0)
+  df_total.subset <- df_total.solo.FyM[df_total.solo.FyM$sujetos==f,]
+  fit.4 <- glm (discrimination_is_correct ~ confidence_key, 
+                  family=binomial(link="logit"), data = df_total.subset)
+  b <- coef (fit.4)
   reg.coef.conf[i] <- b[2]
 }
 
-plot(d.sin.normalizar$mc, reg.coef.conf)
+d.sin.normalizar.solo.FyM <- d.sin.normalizar[d.sin.normalizar$Im == "Masculino"
+                                              |d.sin.normalizar$Im == "Femenino",]
 
-# hago una regresion entre metacog y reg.coef.conf
-fit.4.1 = lm(d.sin.normalizar$mc ~  reg.coef.conf)
-display(fit.4.1)
+plot(d.sin.normalizar.solo.FyM$mc, reg.coef.conf)
+plot(reg.coef.conf, d.sin.normalizar.solo.FyM$mc)
 
-fit.4.2 = lm(reg.coef.conf~ d.sin.normalizar$mc )
+# hago una regresion entre metacog y reg.coef.conf PREGUNTAR DUDA, CAMBIO DE PREDICTOR
+fit.4.2 = lm(d.sin.normalizar$mc ~  reg.coef.conf)
 display(fit.4.2)
 
-# falta el 4.c
+fit.4.3 = lm(reg.coef.conf~ d.sin.normalizar$mc )
+display(fit.4.3)
+
+# quiero predecir la metacog medido como la cuanto predice la confianza el acierto
+fit.4.4 = lm(reg.coef.conf~ aq + Im + aq:Im , data = d.sin.normalizar.solo.FyM)
+display(fit.4.4)
+
+# C
+
+# Elijo el modelo fit.4.1
+
+# i
+
+# El termino constante predice la probabilidad de acertar si todos los
+# predictores estan en 0 (si es femenino, tiene 0 confianza?, AQ 0?)     DUDA CONFIANZA 0?
+# como no tiene sentido no lo interpretamos
+
+# El coeficiente para confianza 0.4, es significativo. Si aplicamos la regla de 
+# dividir por 4: 0.4/4= 0.1, se puede ver que el modelo predice que agregar 1
+# la confianza corresponde a una diferencia postiva en la probabilidad de acertar
+# de 40% como maximo.
+
+# El coeficiente para AQ 0.1, no es significativo. Si aplicamos la regla de 
+# dividir por 4: 0.1/4= 0.025, se puede ver que el modelo predice que agregar 1
+# al AQ corresponde a una diferencia postiva en la probabilidad de acertar
+# de 2,5% como maximo.
+
+# El coeficiente para genero 0.02, no es significativo. Si aplicamos la regla de    DUDA: esta bien usar genero?
+# dividir por 4: 0.02/4= 0.005, se puede ver que el modelo predice que agregar ser masculino
+# corresponde a una diferencia postiva en la probabilidad de acertar
+# de 0.5% como maximo.
+
+# Interpreto los coeficientes en base a la media
+
+aq.mean <- mean(df_total.solo.FyM$AQ) # 25.58763
+confidence_key.mean <- mean(df_total.solo.FyM$confidence_key) # 2.626384
+
+# DUDA : como interpreto con genero las medias?
+
+# mientras saco genero del modelo para interpretar los coeficientes en base a la media
+# Corro el nuevo modelo:
+fit.4.5 <- glm (discrimination_is_correct ~ confidence_key + AQ
+                , family=binomial(link="logit"), data = df_total.solo.FyM)
+display(fit.4.5)
+
+# constant term en base a la media:
+prob.acierto <- invlogit(-0.09 + 0.4 * 2.626384 + 0.01 * 25.58763)# = 0.7714347
+# la probabilidad de acertar en la media de AQ y de confianza es de 0.77
+
+# coef de confidence_key en base a la media:
+# aca necesitaria la interaccion
+# pero me da 0. Asi que no lo terpreto, igual con el AQ
+
+# ii
+# error rate:
+new.aq <- rnorm(200, mean= 25.58763, sd= 3.398191)
+new.confidence <- rnorm(200, mean = 2.626384, sd= 0.9980241)
+new.df <- data.frame(AQ = new.aq,
+                     confidence_key = new.confidence)
+
+predicted <- predict(fit.4.5,newdata = new.df)
+
+error.rate <- mean ((predicted>0.5 & df_total.solo.FyM$discrimination_is_correct==0) | 
+                      (predicted<.5 & df_total.solo.FyM$discrimination_is_correct==1))
+
+
+
+
