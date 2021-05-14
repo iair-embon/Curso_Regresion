@@ -151,12 +151,25 @@ d.sin.normalizar.solo.FyM <- d.sin.normalizar[d.sin.normalizar$Im == "Masculino"
 plot(d.sin.normalizar.solo.FyM$mc, reg.coef.conf)
 plot(reg.coef.conf, d.sin.normalizar.solo.FyM$mc)
 
+
+d.sin.normalizar.solo.FyM$normal.mc <- (d.sin.normalizar.solo.FyM$mc - mean(d.sin.normalizar.solo.FyM$mc))/sd(d.sin.normalizar.solo.FyM$mc)
+
+d.sin.normalizar.solo.FyM$normal.reg.coef.conf <- (d.sin.normalizar.solo.FyM$reg.coef.conf - mean(d.sin.normalizar.solo.FyM$reg.coef.conf))/sd(d.sin.normalizar.solo.FyM$reg.coef.conf)
+
+plot(d.sin.normalizar.solo.FyM$normal.mc, reg.coef.conf)
+
 # hago una regresion entre metacog y reg.coef.conf PREGUNTAR DUDA, CAMBIO DE PREDICTOR
-fit.4.2 = lm(d.sin.normalizar$mc ~  reg.coef.conf)
+fit.4.2 = lm(d.sin.normalizar.solo.FyM$mc ~  reg.coef.conf)
 display(fit.4.2)
 
-fit.4.3 = lm(reg.coef.conf~ d.sin.normalizar$mc )
+fit.4.3 = lm(reg.coef.conf~ d.sin.normalizar.solo.FyM$mc )
 display(fit.4.3)
+
+# corro una correlacion entre metacog area bajo la curva tipo 2 y la de regresion logistica
+x <- reg.coef.conf 
+y <- d.sin.normalizar.solo.FyM$mc
+cor.test(x, y, method=c("pearson"))
+
 
 # quiero predecir la metacog medido como la cuanto predice la confianza el acierto
 fit.4.4 = lm(reg.coef.conf~ aq + Im + aq:Im , data = d.sin.normalizar.solo.FyM)
