@@ -148,7 +148,7 @@ for (i in 1:length(unique(df_total.solo.FyM$sujetos))) {
 d.sin.normalizar.solo.FyM <- d.sin.normalizar[d.sin.normalizar$Im == "Masculino"
                                               |d.sin.normalizar$Im == "Femenino",]
 
-plot(d.sin.normalizar.solo.FyM$mc, reg.coef.conf)
+plot(d.sin.normalizar.solo.FyM$mc, reg.coef.conf, ylim = c(-3,3))
 plot(reg.coef.conf, d.sin.normalizar.solo.FyM$mc)
 
 
@@ -161,6 +161,9 @@ plot(d.sin.normalizar.solo.FyM$normal.mc, reg.coef.conf)
 # hago una regresion entre metacog y reg.coef.conf PREGUNTAR DUDA, CAMBIO DE PREDICTOR
 fit.4.2 = lm(d.sin.normalizar.solo.FyM$mc ~  reg.coef.conf)
 display(fit.4.2)
+plot (reg.coef.conf, d.sin.normalizar.solo.FyM$mc, xlab="height", ylab="earn")
+curve (coef(fit.4.2)[1] + coef(fit.4.2)[2]*x, add=TRUE) 
+
 
 fit.4.3 = lm(reg.coef.conf~ d.sin.normalizar.solo.FyM$mc )
 display(fit.4.3)
